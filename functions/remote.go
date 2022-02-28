@@ -78,7 +78,6 @@ func HMAC_SHA256(w http.ResponseWriter, r *http.Request) {
 			}(i)
 			wait.Wait()
 			if bqResp.ErrorMessage != "" {
-				bqResp.ErrorMessage = "Invalid mode type. expected string"
 				bqResp.Replies = nil
 				break
 			}
