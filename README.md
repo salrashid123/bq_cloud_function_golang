@@ -112,6 +112,11 @@ FROM
 +---------------------------------------------+----------------------------------------------+
 ```
 
+You can see the invocation in cloud functions logs directly:
+
+![images/hmac_sha256.png](images/hmac_sha256.png)
+
+
 For reference on javascript UDF, see [BigQuery HMAC-SHA256 User-defined Function](https://blog.salrashid.dev/articles/2020/bq-udf-hmac/)
 
 ---
