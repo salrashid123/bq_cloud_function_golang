@@ -7,6 +7,12 @@
      "key2": "v2"
     },
     "calls": [
-     ["The quick brown fox jumps over the lazy dog", "key"]
+     ["The quick brown fox jumps over the lazy dog", "key"],
+     ["The quick brown fox jumps over the lazy dog", "bar"],
+     ["foo", "bar"],
+     ["bar", "bar"],
+     ["foo", "bar"],     
+     ["The quick brown fox jumps over the lazy dog", "key"],
+     ["The quick brown fox jumps over the lazy dog", "bar"]
     ]
 }

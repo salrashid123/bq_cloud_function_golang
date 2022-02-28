@@ -42,7 +42,34 @@ gcloud functions add-iam-policy-binding hmac_sha256 \
 ```
 
 
-Now test directly using curl.  You should see the hmac output in the reply:
+Now test directly using curl.  You should see the hmac output in the reply.
+
+Given the input
+
+- `req.json`
+
+```json
+{
+    "requestId": "124ab1c",
+    "caller": "//bigquery.googleapis.com/projects/myproject/jobs/myproject:US.bquxjob_5b4c112c_17961fafeaf",
+    "sessionUser": "test-user@test-company.com",
+    "userDefinedContext": {
+     "key1": "value1",
+     "key2": "v2"
+    },
+    "calls": [
+     ["The quick brown fox jumps over the lazy dog", "key"],
+     ["The quick brown fox jumps over the lazy dog", "bar"],
+     ["foo", "bar"],
+     ["bar", "bar"],
+     ["foo", "bar"],     
+     ["The quick brown fox jumps over the lazy dog", "key"],
+     ["The quick brown fox jumps over the lazy dog", "bar"]
+    ]
+}
+```
+
+the output will be in order (i.,e we expect the hashes of (row1, row6) to match as well as (row2, row7) and finally (row3, row5))
 
 ```bash
 curl -s  -X POST  \
@@ -54,10 +81,19 @@ curl -s  -X POST  \
 
 {
   "replies": [
-    "97yD9DBThCSxMpjmqm+xQ+9NWaFJRhdZl0edvC0aPNg="
+    "97yD9DBThCSxMpjmqm+xQ+9NWaFJRhdZl0edvC0aPNg=",
+    "4Gwg9rSBeSWMLz7yltK5ujS3fXz6C1eSottgyOMajjY=",
+    "FHkzIYqqvAuLEKKzpcNGhMjZQ0G88QpHNtxycPd0GFE=",
+    "ltlEFLFUq3pBoeLIS9b6WIdM1N6LFrFrFNsuMZDVMww=",
+    "FHkzIYqqvAuLEKKzpcNGhMjZQ0G88QpHNtxycPd0GFE=",
+    "97yD9DBThCSxMpjmqm+xQ+9NWaFJRhdZl0edvC0aPNg=",
+    "4Gwg9rSBeSWMLz7yltK5ujS3fXz6C1eSottgyOMajjY="
   ]
 }
 ```
+
+
+
 
 Insert a bigquery table with the key and plaintext
 
