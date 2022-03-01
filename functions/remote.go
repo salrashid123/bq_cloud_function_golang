@@ -76,11 +76,11 @@ func HMAC_SHA256(w http.ResponseWriter, r *http.Request) {
 				}
 				objs[j] = base64.StdEncoding.EncodeToString(h.Sum(nil))
 			}(i)
-			wait.Wait()
 			if bqResp.ErrorMessage != "" {
 				bqResp.Replies = nil
 				break
 			}
+			wait.Wait()
 			bqResp.Replies = objs
 		}
 	}
