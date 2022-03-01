@@ -5,16 +5,6 @@ A [BQ Remote Function](https://cloud.google.com/bigquery/docs/reference/standard
 
 * for each row, a [Cloud Function](https://cloud.google.com/functions) will calculate the  [HMAC-SHA256](https://en.wikipedia.org/wiki/HMAC) using a passphrase provided by the function caller.
 
-In this example, the expected base64 encoded value with plaintext and key will be
-
-```bash
-export key="key"
-export plaintext="The quick brown fox jumps over the lazy dog"
-echo -n  "$plaintext" | openssl dgst -sha256 -hmac "$key"  -hex -r | xxd -r -p | base64
-
-97yD9DBThCSxMpjmqm+xQ+9NWaFJRhdZl0edvC0aPNg=
-```
-
 >> NOTE: this feature is in private preview (as of 2/28/22); running this tutorial requires allowlist/enablement.
 
 #### Setup
@@ -43,6 +33,16 @@ gcloud functions add-iam-policy-binding hmac_sha256 \
 
 
 Now test directly using curl.  You should see the hmac output in the reply.
+
+In this example, the expected base64 encoded value with the given control plaintext and key will be
+
+```bash
+export key="key"
+export plaintext="The quick brown fox jumps over the lazy dog"
+echo -n  "$plaintext" | openssl dgst -sha256 -hmac "$key"  -hex -r | xxd -r -p | base64
+
+97yD9DBThCSxMpjmqm+xQ+9NWaFJRhdZl0edvC0aPNg=
+```
 
 Given the input
 
