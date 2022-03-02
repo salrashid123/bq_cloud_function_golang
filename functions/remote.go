@@ -51,6 +51,9 @@ func HMAC_SHA256(w http.ResponseWriter, r *http.Request) {
 				bqResp.ErrorMessage = fmt.Sprintf("Invalid number of input fields provided.  expected 2, got  %d", len(r))
 				break
 			}
+			if bqResp.ErrorMessage != "" {
+				break
+			}
 			// TODO: use goroutines heres but keep the order
 			raw, ok := r[0].(string)
 			if !ok {
@@ -76,11 +79,11 @@ func HMAC_SHA256(w http.ResponseWriter, r *http.Request) {
 				}
 				objs[j] = base64.StdEncoding.EncodeToString(h.Sum(nil))
 			}(i)
-			if bqResp.ErrorMessage != "" {
-				bqResp.Replies = nil
-				break
-			}
-			wait.Wait()
+		}
+		wait.Wait()
+		if bqResp.ErrorMessage != "" {
+			bqResp.Replies = nil
+		} else {
 			bqResp.Replies = objs
 		}
 	}
