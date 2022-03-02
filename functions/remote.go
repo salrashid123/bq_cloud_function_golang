@@ -1,6 +1,7 @@
 package remote
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -44,40 +45,48 @@ func HMAC_SHA256(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("userDefinedContext %v\n", bqReq.UserDefinedContext)
 
 		wait := new(sync.WaitGroup)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
 		objs := make([]string, len(bqReq.Calls))
 
 		for i, r := range bqReq.Calls {
 			if len(r) != 2 {
 				bqResp.ErrorMessage = fmt.Sprintf("Invalid number of input fields provided.  expected 2, got  %d", len(r))
-				break
 			}
-			if bqResp.ErrorMessage != "" {
-				break
-			}
-			// TODO: use goroutines heres but keep the order
 			raw, ok := r[0].(string)
 			if !ok {
-				bqResp.ErrorMessage = "Invalid mode type. expected string"
-				bqResp.Replies = nil
-				break
+				bqResp.ErrorMessage = "Invalid plaintext type. expected string"
 			}
 			key, ok := r[1].(string)
 			if !ok {
-				bqResp.ErrorMessage = "Invalid mode type. expected string"
+				bqResp.ErrorMessage = "Invalid key type. expected string"
+			}
+			if bqResp.ErrorMessage != "" {
 				bqResp.Replies = nil
 				break
 			}
+			//  use goroutines heres but keep the order
 			wait.Add(1)
 			go func(j int) {
 				defer wait.Done()
-				h := hmac.New(sha256.New, []byte(key))
-				_, err = io.WriteString(h, raw)
-				if err != nil {
-					bqResp.ErrorMessage = "Error writing hmac"
-					bqResp.Replies = nil
-					return
+				for {
+					select {
+					case <-ctx.Done():
+						return
+					default:
+						h := hmac.New(sha256.New, []byte(key))
+						_, err = io.WriteString(h, raw)
+						if err != nil {
+							bqResp.ErrorMessage = fmt.Sprintf("Error writing hmac  for row %d", j)
+							bqResp.Replies = nil
+							cancel()
+							return
+						}
+						objs[j] = base64.StdEncoding.EncodeToString(h.Sum(nil))
+						return
+					}
 				}
-				objs[j] = base64.StdEncoding.EncodeToString(h.Sum(nil))
 			}(i)
 		}
 		wait.Wait()
